@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PAIR CODE</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"/>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Arial', sans-serif;
+      color: #fff;
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      background: #000;
+    }
+
+    /* Background video */
+    #bg-video {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      object-fit: cover;
+      z-index: -3;
+    }
+
+    /* Fire overlay */
+    #fire-video {
+      position: fixed;
+      bottom: 0; left: 0;
+      width: 100vw;
+      height: auto;
+      object-fit: cover;
+      z-index: -2;
+      pointer-events: none;
+    }
+
+    /* Center container */
+    .container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      z-index: 1;
+      position: relative;
+      padding: 1rem;
+      box-sizing: border-box;
+      flex-direction: column;
+    }
+
+    .box {
+      width: 340px;
+      max-width: calc(100% - 40px);
+      padding: 18px;
+      background: linear-gradient(135deg, #ffffff 0%, #d9f0ff 100%);
+      border: 3px solid #6EC1E4;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(110, 193, 228, 0.6);
+      text-align: center;
+      margin-bottom: 20px;
+      color: #000;
+    }
+
+    /* Decorative heading: two blocks + center text with glowing red */
+    .decor-heading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 14px;
+      flex-wrap: nowrap;
+      color: #ffd27a;
+    }
+
+    .decor-heading .dec {
+      font-family: "Courier New", monospace;
+      font-size: 14px;
+      opacity: 0.9;
+      user-select: none;
+      white-space: nowrap;
+      line-height: 1;
+    }
+
+    .decor-heading h3 {
+      margin: 0;
+      padding: 0 6px;
+      font-size: 16px;
+      letter-spacing: 0.6px;
+      background: linear-gradient(90deg, rgba(255,255,255,0.06), rgba(255,255,255,0));
+      border-radius: 6px;
+      padding-left: 8px;
+      padding-right: 8px;
+      font-weight: 700;
+      color: #ff6b6b; /* base red */
+      animation: glow-red 2.5s ease-in-out infinite alternate;
+      text-shadow:
+        0 0 5px #ff6b6b,
+        0 0 10px #ff6b6b,
+        0 0 15px #ff6b6b,
+        0 0 20px #ff4a4a,
+        0 0 30px #ff4a4a;
+    }
+
+    @keyframes glow-red {
+      0% {
+        text-shadow:
+          0 0 2px #ff6b6b,
+          0 0 5px #ff6b6b,
+          0 0 10px #ff4a4a,
+          0 0 12px #ff4a4a,
+          0 0 15px #ff4a4a;
+      }
+      100% {
+        text-shadow:
+          0 0 10px #ff6b6b,
+          0 0 15px #ff6b6b,
+          0 0 20px #ff4a4a,
+          0 0 25px #ff4a4a,
+          0 0 30px #ff4a4a;
+      }
+    }
+
+    /* "Enter your wb number with country code" - make text black */
+    .box h6 {
+      color: #000 !important;
+      margin: 6px 0 8px;
+      font-weight: 600;
+      opacity: 0.95;
+    }
+
+    .input-container {
+      display: flex;
+      gap: 0.3rem;
+      background: #ffffff;
+      border-radius: 1rem;
+      padding: 0.25rem;
+      max-width: 320px;
+      margin: 0 auto 0.75rem;
+      align-items: center;
+    }
+
+    .input-container input {
+      flex: 1;
+      padding: 0.85rem;
+      border: none;
+      border-left: 2px solid #075e54;
+      border-radius: 0.7rem 0 0 0.7rem;
+      background: #000;
+      color: #ecf0f1;
+      font-size: 0.95rem;
+      transition: all 0.15s ease-in-out;
+    }
+
+    .input-container input:focus {
+      outline: none;
+      box-shadow: inset 10px 10px 8px rgba(7,94,84,0.12), inset -10px -10px 8px rgba(44,62,80,0.06);
+    }
+
+    .submit-btn {
+      flex: 0 0 auto;
+      padding: 0.55rem 0.9rem;
+      background: #25d366;
+      border: none;
+      color: #fff;
+      font-weight: 800;
+      letter-spacing: 0.12rem;
+      text-transform: uppercase;
+      border-radius: 0 0.9rem 0.9rem 0;
+      cursor: pointer;
+      font-size: 0.86rem;
+      min-width: 64px;
+      transition: background 0.15s ease;
+    }
+
+    .submit-btn:hover:enabled {
+      background: #2980b9;
+    }
+
+    .submit-btn:disabled {
+      background: #999;
+      cursor: not-allowed;
+    }
+
+    #loading-spinner {
+      display: none;
+      margin-top: 8px;
+      font-size: 0.95rem;
+      color: #000;
+    }
+
+    .fa-spinner { animation: spin 1.8s linear infinite; }
+    @keyframes spin { 0%{transform:rotate(0)}100%{transform:rotate(360deg)} }
+
+    #pair { margin-top: 10px; font-size: 1rem; word-break: break-word; color: #000; }
+
+    .error { color: #ff7b7b; font-weight: 700; display: inline-block; margin-bottom: 8px; }
+
+    #copy { color: #ff6b6b; font-weight: 800; font-size: 1.05rem; cursor: pointer; user-select: none; }
+
+    /* Responsive tweaks */
+    @media (max-width: 420px) {
+      .box { width: 100%; padding: 14px; }
+      .decor-heading .dec { font-size: 12px; }
+      .decor-heading h3 { font-size: 15px; }
+      .submit-btn { padding: 0.5rem 0.75rem; font-size: 0.82rem; min-width: 56px; }
+    }
+
+    /* Scroll text container */
+    .scroll-text-container {
+      width: 100%;
+      overflow: hidden;
+      border: 1px solid #e74c3c;
+      border-radius: 8px;
+      background: #000;
+      padding: 8px 0;
+      box-sizing: border-box;
+      margin-top: 20px;
+    }
+
+    .scroll-text {
+      display: inline-block;
+      white-space: nowrap;
+      color: #e74c3c;
+      font-weight: 700;
+      font-size: 1rem;
+      padding-left: 100%;
+      animation: scroll-left 10s linear infinite;
+    }
+
+    @keyframes scroll-left {
+      0% {
+        transform: translateX(0);
+      }
+      100% {
+        transform: translateX(-100%);
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Background Video -->
+  <video autoplay muted loop id="bg-video" playsinline>
+    <source src="https://files.catbox.moe/i9nimr.mp4" type="video/mp4" />
+  </video>
+
+  <!-- Fire Effect -->
+  <video autoplay muted loop id="fire-video" playsinline>
+    <source src="https://files.catbox.moe/0p9z7o.mp4" type="video/mp4" />
+  </video>
+
+  <!-- Main Content -->
+  <div class="container">
+    <div class="box" id="box">
+      <div id="text">
+        <!-- Decorative heading with centered text between the two blocks -->
+        <div class="decor-heading" aria-hidden="true">
+          <span class="dec">◣━━━━━━━━━━━◢</span>
+          <h3 class="centered-text">Link with Black wolf</h3>
+          <span class="dec">◤━━━━━━━━━━━◥</span>
+        </div>
+
+        <h6>🔢 Enter your wb number with country code.</h6>
+
+        <div class="input-container">
+          <input id="number" type="text" placeholder="+94729xxxxxx" inputmode="tel" />
+          <button id="submit" class="submit-btn">Submit</button>
+        </div>
+
+        <div id="loading-spinner"><i class="fas fa-spinner fa-spin"></i> Processing…</div>
+
+        <main id="pair"></main>
+      </div>
+
+      <!-- Scrolling red text below the main content -->
+      <div class="scroll-text-container">
+        <div class="scroll-text">🔥 Black wolf 🐺 black wolf 🐺 black wolf 🐺 black wolf 🐺 black wolf 🐺 🔥</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.0.0-alpha.1/axios.min.js"></script>
+  <script>
+    const pairContainer = document.getElementById("pair");
+    const submitBtn = document.getElementById("submit");
+    const numberInput = document.getElementById("number");
+
+    async function Copy() {
+      const copyEl = document.getElementById("copy");
+      if (!copyEl) return;
+      const originalText = copyEl.innerText;
+      try {
+        await navigator.clipboard.writeText(originalText.replace('CODE: ', ''));
+        copyEl.innerText = "✔️ COPIED";
+        copyEl.style.color = "white";
+        setTimeout(() => {
+          copyEl.innerText = originalText;
+          copyEl.style.color = "#ff6b6b";
+        }, 1100);
+      } catch (err) {
+        console.error('copy failed', err);
+      }
+    }
+
+    submitBtn.addEventListener("click", async (e) => {
+      e.preventDefault();
+      pairContainer.innerHTML = "";
+
+      if (!numberInput.value) {
+        pairContainer.innerHTML = '<div class="error">❗ Enter your WhatsApp number with country code.</div>';
+        return;
+      }
+
+      const digitsOnly = numberInput.value.replace(/\D/g, "");
+      if (digitsOnly.length < 11) {
+        pairContainer.innerHTML = '<div class="error">❗ Invalid number format. Please try again.</div>';
+        return;
+      }
+
+      // format for display (+xxx xxx xxxxx)
+      let formatted = "+";
+      digitsOnly.split('').forEach((digit, idx) => {
+        formatted += (idx === 3 || idx === 8) ? " " + digit : digit;
+      });
+
+      numberInput.type = "text";
+      numberInput.value = formatted;
+      numberInput.style.fontSize = "1rem";
+      submitBtn.disabled = true;
+      document.getElementById("loading-spinner").style.display = "block";
+
+      try {
+        const { data } = await axios(`/code?number=${digitsOnly}`);
+        const code = (data && data.code) ? data.code : "❗ Service Unavailable";
+        pairContainer.innerHTML = `<div id="copy" onclick="Copy()">CODE: ${code}</div>`;
+      } catch (err) {
+        pairContainer.innerHTML = '<div class="error">❗ Failed to get code. Please try again.</div>';
+      } finally {
+        document.getElementById("loading-spinner").style.display = "none";
+        submitBtn.disabled = false;
+      }
+    });
+  </script>
+</body>
+    </html>
+  
